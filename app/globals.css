@@ -1,0 +1,259 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fumadocs-editor/ui/styles.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: var(--font-sans);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+    --color-invert-foreground: var(--invert-foreground);
+    --color-invert: var(--invert);
+    --color-warning-foreground: var(--warning-foreground);
+    --color-warning: var(--warning);
+    --color-info-foreground: var(--info-foreground);
+    --color-info: var(--info);
+    --color-success-foreground: var(--success-foreground);
+    --color-success: var(--success);
+    --color-destructive-foreground: var(--destructive-foreground);
+}
+
+:root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+    --destructive-foreground: var(--color-red-800);
+    --success: var(--color-emerald-500);
+    --success-foreground: var(--color-emerald-900);
+    --info: var(--color-violet-500);
+    --info-foreground: var(--color-violet-900);
+    --warning: var(--color-yellow-500);
+    --warning-foreground: var(--color-yellow-900);
+    --invert: var(--color-zinc-900);
+    --invert-foreground: var(--color-zinc-50);
+}
+
+.dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+    --destructive-foreground: var(--color-red-600);
+    --success: var(--color-emerald-500);
+    --success-foreground: var(--color-emerald-600);
+    --info: var(--color-violet-500);
+    --info-foreground: var(--color-violet-600);
+    --warning: var(--color-yellow-500);
+    --warning-foreground: var(--color-yellow-600);
+    --invert: var(--color-zinc-700);
+    --invert-foreground: var(--color-zinc-50);
+}
+
+/* The Fumadocs editor reads its own --fde-* tokens. They are aliased to the
+   app's tokens here, so the editor has no colour system of its own and
+   follows the theme with everything else. */
+:root,
+.light,
+.dark {
+    --fde-background: var(--background);
+    --fde-foreground: var(--foreground);
+    --fde-muted: var(--muted);
+    --fde-muted-foreground: var(--muted-foreground);
+    --fde-popover: var(--popover);
+    --fde-popover-foreground: var(--popover-foreground);
+    --fde-card: var(--muted);
+    --fde-card-foreground: var(--card-foreground);
+    --fde-border: var(--border);
+    --fde-primary: var(--primary);
+    --fde-primary-foreground: var(--primary-foreground);
+    --fde-secondary: var(--secondary);
+    --fde-secondary-foreground: var(--secondary-foreground);
+    --fde-accent: var(--accent);
+    --fde-accent-foreground: var(--accent-foreground);
+    --fde-ring: var(--ring);
+    --fde-error: var(--destructive);
+}
+
+.dark {
+    --fde-card: var(--card);
+}
+
+/* Syntax colours for the repository code viewer. They reuse the editor's
+   highlight tokens, so code looks the same in a document and in a file. */
+.repo-code .hljs-comment,
+.repo-code .hljs-quote {
+    color: var(--fde-hl-comment);
+}
+
+.repo-code .hljs-keyword,
+.repo-code .hljs-selector-tag,
+.repo-code .hljs-literal,
+.repo-code .hljs-built_in {
+    color: var(--fde-hl-keyword);
+}
+
+.repo-code .hljs-string,
+.repo-code .hljs-regexp,
+.repo-code .hljs-addition {
+    color: var(--fde-hl-string);
+}
+
+.repo-code .hljs-number,
+.repo-code .hljs-symbol,
+.repo-code .hljs-bullet {
+    color: var(--fde-hl-number);
+}
+
+.repo-code .hljs-title,
+.repo-code .hljs-section,
+.repo-code .hljs-function {
+    color: var(--fde-hl-title);
+}
+
+.repo-code .hljs-type,
+.repo-code .hljs-class {
+    color: var(--fde-hl-type);
+}
+
+.repo-code .hljs-attr,
+.repo-code .hljs-attribute,
+.repo-code .hljs-variable,
+.repo-code .hljs-template-variable,
+.repo-code .hljs-meta {
+    color: var(--fde-hl-attr);
+}
+
+.repo-code .hljs-tag,
+.repo-code .hljs-name,
+.repo-code .hljs-selector-id,
+.repo-code .hljs-selector-class {
+    color: var(--fde-hl-tag);
+}
+
+/* Custom background with "Solid content" on: each page sits on its own solid
+   sheet, inset from the edges, and the background shows as a frame around it. */
+main[data-solid-content] {
+    --workspace-inset: 0.75rem;
+    padding: var(--workspace-inset);
+}
+
+main[data-solid-content] > * {
+    flex: 1 0 auto;
+    overflow: clip;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) * 1.4);
+    background: var(--background);
+}
+
+@media (min-width: 48rem) {
+    main[data-solid-content] {
+        --workspace-inset: 1rem;
+    }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+}
