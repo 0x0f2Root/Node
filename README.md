@@ -1,4 +1,4 @@
-# <img src="https://nodejs.org/static/images/logo.svg" alt="Node.js" width="42" height="42" /> Node Markdown Editor
+# <img src="./public/node.svg" alt="Node Markdown Editor" width="42" height="42" /> Node Markdown Editor
 
 <p align="center">
   <img src="./public/Node.png" alt="Node Markdown Editor preview" width="1000" />
