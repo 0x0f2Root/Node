@@ -14,7 +14,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { Skeleton } from "@/components/ui/skeleton"
-import { loadPages, usePagesState } from "@/lib/pages/store"
+import { loadAllContent, loadPages, usePagesState } from "@/lib/pages/store"
 import { searchPages } from "@/lib/search/search"
 import { AlertCircleIcon, SearchXIcon } from "lucide-react"
 
@@ -30,6 +30,14 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
     [pages, needle]
   )
   const loading = status === "idle" || status === "loading"
+  const pageCount = pages.length
+
+  // Searching body text needs every file read once; titles match at once.
+  React.useEffect(() => {
+    if (needle && pageCount > 0) {
+      void loadAllContent()
+    }
+  }, [needle, pageCount])
 
   return (
     <div className="mx-auto w-full max-w-2xl px-5 pt-10 pb-24 sm:px-8 md:pt-14">

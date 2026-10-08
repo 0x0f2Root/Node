@@ -78,6 +78,15 @@ export function updateTask(id: string, input: Partial<TaskInput>) {
   )
 }
 
+/** Follows pages that were renamed or moved; `remap` returns the new id. */
+export function remapTaskPages(remap: (id: string) => string) {
+  store.set((tasks) =>
+    tasks.map((task) =>
+      task.pageId ? { ...task, pageId: remap(task.pageId) } : task
+    )
+  )
+}
+
 export function deleteTask(id: string) {
   store.set((tasks) => tasks.filter((task) => task.id !== id))
 }

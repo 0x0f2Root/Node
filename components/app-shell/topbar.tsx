@@ -1,8 +1,8 @@
 "use client"
 
-import { useParams } from "next/navigation"
 import { toast } from "sonner"
 
+import { usePageParams } from "@/components/pages/use-page-params"
 import { AppBreadcrumbs } from "@/components/app-shell/breadcrumbs"
 import { ThemeMenu } from "@/components/app-shell/theme-menu"
 import { UserMenu } from "@/components/app-shell/user-menu"
@@ -74,7 +74,7 @@ function SharePopover() {
 }
 
 export function Topbar() {
-  const params = useParams<{ pageId?: string }>()
+  const params = usePageParams()
   const { pages } = usePagesState()
   const { setCommandOpen } = useWorkspaceUI()
   const modKey = useModKey()

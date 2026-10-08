@@ -5,10 +5,15 @@ import { useTheme } from "next-themes"
 
 import { THEMES } from "@/components/app-shell/theme-menu"
 import { useWorkspaceUI } from "@/components/app-shell/workspace-ui"
+import {
+  runCopyLegacyPages,
+  runReload,
+} from "@/components/project/project-actions"
 import { BackgroundSettings } from "@/components/theme/background-settings"
 import { Button } from "@/components/ui/button"
 import { Kbd, KbdGroup } from "@/components/ui/kbd"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { countLegacyPages } from "@/lib/pages/legacy-import"
 import { usePagesState } from "@/lib/pages/store"
 import {
   updateEditorSettings,
@@ -117,6 +122,9 @@ export function SettingsView() {
   const hydrated = useHydrated()
   const settings = useEditorSettings()
   const { status, pages } = usePagesState()
+  const documents = pages.filter((page) => page.kind === "page").length
+  // Pages from before Node stored files; they stay in the browser untouched.
+  const legacy = hydrated ? countLegacyPages() : 0
   const { importMarkdown } = useWorkspaceUI()
   const modKey = useModKey()
 
@@ -166,17 +174,42 @@ export function SettingsView() {
           label="Storage"
           description={
             status === "ready"
-              ? `${pages.length} ${
-                  pages.length === 1 ? "page" : "pages"
-                }, stored as Markdown in this browser. Clearing site data removes them.`
-              : "Pages are stored as Markdown in this browser."
+              ? `${documents} ${
+                  documents === 1 ? "page" : "pages"
+                }, each a Markdown file in data/pages/ inside the Node project.`
+              : "Pages are Markdown files in data/pages/ inside the Node project."
           }
         >
-          <Button variant="outline" size="sm" onClick={importMarkdown}>
-            <UploadIcon data-icon="inline-start" />
-            Import Markdown
-          </Button>
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void runReload()}
+            >
+              Reload from disk
+            </Button>
+            <Button variant="outline" size="sm" onClick={importMarkdown}>
+              <UploadIcon data-icon="inline-start" />
+              Import Markdown
+            </Button>
+          </div>
         </Row>
+        {legacy > 0 ? (
+          <Row
+            label="Pages in this browser"
+            description={`${legacy} ${
+              legacy === 1 ? "page" : "pages"
+            } from before Node used files. Migrating never replaces an existing file and keeps the browser copy.`}
+          >
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void runCopyLegacyPages()}
+            >
+              Migrate pages
+            </Button>
+          </Row>
+        ) : null}
       </Section>
 
       <Section id="shortcuts" title="Keyboard shortcuts">

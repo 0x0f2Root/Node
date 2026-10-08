@@ -5,19 +5,24 @@ import {
   useEditorMode,
   type MediaProvider,
 } from "@fumadocs-editor/ui"
+import * as React from "react"
 import { toast } from "sonner"
 
-import { imageStorage } from "@/lib/storage/image-storage"
+import { imageSource, saveImage } from "@/lib/pages/store"
 
-// Pasted and dropped images go through Node's ImageStorage; the editor only
-// ever sees the returned src.
-const media: MediaProvider = {
-  upload: (file) => imageStorage.upload(file),
-  onError(error) {
-    toast.error("Image upload failed", {
-      description: error instanceof Error ? error.message : undefined,
-    })
-  },
+// Pasted and dropped images become files in the project's assets folder and
+// the document gets a relative link to them. `resolve` turns such a link
+// into something the browser can display.
+function createMedia(pageId: string): MediaProvider {
+  return {
+    upload: (file) => saveImage(pageId, file),
+    resolve: (src) => imageSource(pageId, src),
+    onError(error) {
+      toast.error("The image could not be saved", {
+        description: error instanceof Error ? error.message : undefined,
+      })
+    },
+  }
 }
 
 function Surface() {
@@ -53,12 +58,17 @@ function Surface() {
  * `components={[...fumadocsUiComponents, ...nodeComponents]}` to the root.
  */
 export function NodeEditor({
+  pageId,
   source,
   onChange,
 }: {
+  /** the page as first opened; the store follows it through renames */
+  pageId: string
   source: string
   onChange: (source: string) => void
 }) {
+  const [media] = React.useState(() => createMedia(pageId))
+
   return (
     <MdxEditor.Root defaultValue={source} onChange={onChange} media={media}>
       <div className="node-editor flex flex-col gap-3">

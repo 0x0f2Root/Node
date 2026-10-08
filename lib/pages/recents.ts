@@ -24,6 +24,13 @@ export function recordVisit(id: string) {
   )
 }
 
+/** Follows pages that were renamed or moved; `remap` returns the new id. */
+export function remapRecents(remap: (id: string) => string) {
+  store.set((visits) =>
+    visits.map((visit) => ({ ...visit, id: remap(visit.id) }))
+  )
+}
+
 export function useRecents(): RecentVisit[] {
   return useSyncExternalStore(store.subscribe, store.get, store.getServer)
 }

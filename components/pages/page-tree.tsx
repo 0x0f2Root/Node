@@ -1,10 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { useParams } from "next/navigation"
 
 import { PageTreeItem } from "@/components/pages/page-tree-item"
 import { usePageActions } from "@/components/pages/use-page-actions"
+import { usePageParams } from "@/components/pages/use-page-params"
 import { Button } from "@/components/ui/button"
 import { SidebarMenu } from "@/components/ui/sidebar"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -16,7 +16,7 @@ const SKELETON_WIDTHS = ["w-32", "w-24", "w-36", "w-28", "w-20"]
 
 export function PageTree() {
   const { status, pages, error } = usePagesState()
-  const params = useParams<{ pageId?: string }>()
+  const params = usePageParams()
   const actions = usePageActions()
   const activeId = params.pageId ?? null
 

@@ -10,6 +10,7 @@ import {
   CopyIcon,
   DownloadIcon,
   FilePlusIcon,
+  FileSymlinkIcon,
   FolderInputIcon,
   FolderPlusIcon,
   LinkIcon,
@@ -98,6 +99,10 @@ export function PageMenuItems({
           Copy link
         </Item>
       ) : null}
+      <Item onClick={() => actions.copyPath(page.id)}>
+        <FileSymlinkIcon />
+        Copy path
+      </Item>
       {page.kind === "workspace" ? (
         <>
           <Separator />
@@ -114,11 +119,11 @@ export function PageMenuItems({
             <CalendarPlusIcon />
             Add to Calendar
           </Item>
-          <Item onClick={() => actions.exportAs(page, "md")}>
+          <Item onClick={() => void actions.exportAs(page, "md")}>
             <DownloadIcon />
             Export Markdown
           </Item>
-          <Item onClick={() => actions.exportAs(page, "mdx")}>
+          <Item onClick={() => void actions.exportAs(page, "mdx")}>
             <DownloadIcon />
             Export MDX
           </Item>

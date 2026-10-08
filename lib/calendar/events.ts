@@ -96,6 +96,15 @@ export function updateEvent(id: string, patch: Partial<NodeEventInput>) {
   )
 }
 
+/** Follows pages that were renamed or moved; `remap` returns the new id. */
+export function remapEventPages(remap: (id: string) => string) {
+  store.set((events) =>
+    events.map((event) =>
+      event.pageId ? { ...event, pageId: remap(event.pageId) } : event
+    )
+  )
+}
+
 export function deleteEvent(id: string) {
   store.set((events) => events.filter((event) => event.id !== id))
 }

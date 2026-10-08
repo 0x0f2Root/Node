@@ -21,6 +21,10 @@ export type Page = {
 
   /** Markdown/MDX source: the canonical document. */
   content: string
+  /** False while a page's file has been listed but not read yet. */
+  loaded?: boolean
+  /** The file's modification time when Node last read or wrote it. */
+  revision?: number
 
   favorite: boolean
 

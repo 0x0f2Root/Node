@@ -5,8 +5,13 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 import { IMPORT_ACCEPT, readMarkdownFile } from "@/lib/markdown/files"
-import { createPage } from "@/lib/pages/store"
-import { pageHref } from "@/lib/pages/tree"
+import {
+  createPage,
+  getPages,
+  onPagesRelocated,
+  uniqueTitle,
+} from "@/lib/pages/store"
+import { destinationFor, pageHref } from "@/lib/pages/tree"
 import type { Page } from "@/lib/pages/types"
 
 export interface PageDialog {
@@ -73,6 +78,19 @@ export function WorkspaceUIProvider({
     return () => window.removeEventListener("keydown", onKeyDown)
   }, [])
 
+  // Renaming or moving a folder changes its id; open rows stay open.
+  React.useEffect(
+    () =>
+      onPagesRelocated((remap) =>
+        setExpandedState((current) =>
+          Object.fromEntries(
+            Object.entries(current).map(([id, open]) => [remap(id), open])
+          )
+        )
+      ),
+    []
+  )
+
   const closeDialog = React.useCallback(() => setDialog(null), [])
 
   const setExpanded = React.useCallback((pageId: string, open: boolean) => {
@@ -92,7 +110,13 @@ export function WorkspaceUIProvider({
     for (const file of files) {
       try {
         const { title, content } = await readMarkdownFile(file)
-        last = await createPage({ title, content })
+        // Into the first workspace; a name already in use gets a number.
+        const parentId = destinationFor(getPages(), null)
+        last = await createPage({
+          parentId,
+          title: uniqueTitle(parentId, title),
+          content,
+        })
         imported += 1
       } catch (error) {
         toast.error("Import failed", {

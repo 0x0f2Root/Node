@@ -88,15 +88,17 @@ function InlineName({ page, creating }: { page: Page; creating: boolean }) {
     finished.current = true
     stopEditing()
     const title = uniqueTitle(page.parentId, value, page.id)
+    // Renaming gives the item a new id: its name is its file name.
+    let id = page.id
     try {
       if (title !== page.title) {
-        await updatePage(page.id, { title })
+        id = await updatePage(page.id, { title })
       }
     } catch {
       toast.error("Could not save the name")
     }
     if (creating && page.kind === "page") {
-      router.push(pageHref(page.id))
+      router.push(pageHref(id))
     }
   }
 

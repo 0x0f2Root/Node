@@ -1,9 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
+import { usePageParams } from "@/components/pages/use-page-params"
 import { useWorkspaceUI } from "@/components/app-shell/workspace-ui"
 import {
   openWorkspaceDialog,
@@ -13,10 +14,12 @@ import { exportPage, type ExportFormat } from "@/lib/markdown/files"
 import {
   createPage,
   duplicatePage,
+  ensureContent,
   getPages,
   uniqueTitle,
   updatePage,
 } from "@/lib/pages/store"
+import { idToPath } from "@/lib/pages/paths"
 import { destinationFor, getAncestors, pageHref } from "@/lib/pages/tree"
 import { DEFAULT_PAGE_TITLE, type Page } from "@/lib/pages/types"
 
@@ -29,7 +32,7 @@ function fail(title: string, error: unknown) {
 /** Everything a menu, button or command can do to a page, folder or workspace. */
 export function usePageActions() {
   const router = useRouter()
-  const params = useParams<{ pageId?: string }>()
+  const params = usePageParams()
   const { openDialog, setExpanded } = useWorkspaceUI()
   const currentId = params.pageId ?? null
 
@@ -122,13 +125,25 @@ export function usePageActions() {
           .then(() => toast.success("Link copied"))
           .catch(() => toast.error("Could not copy the link"))
       },
+      /** The file's location inside the project folder. */
+      copyPath(id: string) {
+        void navigator.clipboard
+          .writeText(idToPath(id))
+          .then(() => toast.success("Path copied"))
+          .catch(() => toast.error("Could not copy the path"))
+      },
       /** Opens the calendar's new-event dialog with this page linked. */
       addToCalendar(id: string) {
         router.push(`/calendar?page=${encodeURIComponent(id)}`)
       },
-      exportAs(page: Page, format: ExportFormat) {
+      async exportAs(page: Page, format: ExportFormat) {
         try {
-          exportPage(page, format)
+          // The text may not have been read from its file yet.
+          await ensureContent(page.id)
+          exportPage(
+            getPages().find((item) => item.id === page.id) ?? page,
+            format
+          )
         } catch (error) {
           fail("Export failed", error)
         }

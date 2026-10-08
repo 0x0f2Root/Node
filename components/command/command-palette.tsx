@@ -1,12 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { Command as CommandPrimitive } from "cmdk"
 import { useTheme } from "next-themes"
 
 import { useWorkspaceUI } from "@/components/app-shell/workspace-ui"
 import { usePageActions } from "@/components/pages/use-page-actions"
+import { usePageParams } from "@/components/pages/use-page-params"
+import { runReload } from "@/components/project/project-actions"
 import {
   Command,
   CommandDialog,
@@ -17,7 +19,7 @@ import {
 } from "@/components/ui/command"
 import { BeamSearch } from "@/components/spectrumui/beam-search"
 import { useRecents } from "@/lib/pages/recents"
-import { usePagesState } from "@/lib/pages/store"
+import { loadAllContent, usePagesState } from "@/lib/pages/store"
 import { pageHref, pagePath } from "@/lib/pages/tree"
 import { pageTitle, type Page } from "@/lib/pages/types"
 import {
@@ -53,6 +55,7 @@ import {
   Trash2Icon,
   UploadIcon,
   type LucideIcon,
+  RefreshCwIcon,
 } from "lucide-react"
 
 type CommandGroupName = "Navigation" | "Pages" | "Application"
@@ -90,7 +93,7 @@ function matches(command: PaletteCommand, terms: string[]) {
 /** The global command palette: jump to a page or run a command. */
 export function CommandPalette() {
   const router = useRouter()
-  const params = useParams<{ pageId?: string; repositoryId?: string }>()
+  const params = usePageParams<{ pageId?: string; repositoryId?: string }>()
   const { commandOpen, setCommandOpen, importMarkdown } = useWorkspaceUI()
   const { pages } = usePagesState()
   const recents = useRecents()
@@ -99,6 +102,14 @@ export function CommandPalette() {
   const [query, setQuery] = React.useState("")
 
   const needle = query.trim()
+  const searching = commandOpen && needle !== ""
+
+  // Matching body text needs every file read once; titles match at once.
+  React.useEffect(() => {
+    if (searching) {
+      void loadAllContent()
+    }
+  }, [searching])
   const current = params.pageId
     ? pages.find((page) => page.id === params.pageId)
     : undefined
@@ -330,6 +341,14 @@ export function CommandPalette() {
           },
         ] satisfies PaletteCommand[])
       : []),
+    {
+      id: "reload-pages",
+      group: "Application",
+      label: "Reload Pages from Disk",
+      icon: RefreshCwIcon,
+      keywords: "refresh rescan files external changes",
+      run: () => void runReload(),
+    },
     {
       id: "import-repository",
       group: "Application",

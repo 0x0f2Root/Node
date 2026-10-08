@@ -7,11 +7,14 @@ export interface PageNode {
 
 export const WORKSPACE_LABEL = "Workspace"
 
-// Folders before pages, then oldest first, like a file explorer.
-function byCreation(a: Page, b: Page) {
+// Folders before pages, then by name, like a file explorer.
+function byName(a: Page, b: Page) {
   return (
     Number(b.kind !== "page") - Number(a.kind !== "page") ||
-    a.createdAt.getTime() - b.createdAt.getTime()
+    a.title.localeCompare(b.title, undefined, {
+      numeric: true,
+      sensitivity: "base",
+    })
   )
 }
 
@@ -29,9 +32,7 @@ export function destinationFor(
     return current.kind === "page" ? current.parentId : current.id
   }
   return (
-    pages
-      .filter((page) => page.kind === "workspace")
-      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())[0]?.id ??
+    pages.filter((page) => page.kind === "workspace").sort(byName)[0]?.id ??
     null
   )
 }
@@ -54,7 +55,7 @@ export function buildTree(pages: Page[]): PageNode[] {
 
   function nodesFor(parentId: string | null): PageNode[] {
     return (childrenOf.get(parentId) ?? [])
-      .sort(byCreation)
+      .sort(byName)
       .map((page) => ({ page, children: nodesFor(page.id) }))
   }
 

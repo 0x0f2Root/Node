@@ -1,9 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
+import { usePageParams } from "@/components/pages/use-page-params"
 import { useWorkspaceUI } from "@/components/app-shell/workspace-ui"
 import {
   AlertDialog,
@@ -189,7 +190,7 @@ function DeleteDialog({
   onClose: () => void
 }) {
   const router = useRouter()
-  const params = useParams<{ pageId?: string }>()
+  const params = usePageParams()
   const [pending, setPending] = React.useState(false)
 
   const nested = page ? getDescendantIds(pages, page.id) : []

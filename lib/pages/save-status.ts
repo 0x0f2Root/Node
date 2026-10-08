@@ -2,7 +2,9 @@
 
 import { useSyncExternalStore } from "react"
 
-import { updatePage } from "@/lib/pages/store"
+import { toast } from "sonner"
+
+import { PageConflictError, reloadPage, updatePage } from "@/lib/pages/store"
 import type { UpdatePageInput } from "@/lib/pages/types"
 import { createStore } from "@/lib/utils/store"
 
@@ -43,17 +45,39 @@ export function retrySave() {
 /** Persists a change to a page and reflects the outcome in the topbar. */
 export async function savePage(
   id: string,
-  input: UpdatePageInput
+  input: UpdatePageInput,
+  options: { force?: boolean } = {}
 ): Promise<boolean> {
   store.set("saving")
   try {
-    await updatePage(id, input)
+    await updatePage(id, input, options)
     retry = null
     store.set(dirty ? "unsaved" : "saved")
     return true
-  } catch {
-    retry = () => void savePage(id, input)
+  } catch (error) {
+    retry = () => void savePage(id, input, options)
     store.set("error")
+    if (error instanceof PageConflictError) {
+      // The file was edited elsewhere. Neither version is discarded until
+      // the user picks one.
+      toast.error("This page changed on disk", {
+        id: "page-conflict",
+        description:
+          "It was edited outside Node while you were working on it here.",
+        duration: Infinity,
+        action: {
+          label: "Keep my version",
+          onClick: () => void savePage(id, input, { force: true }),
+        },
+        cancel: {
+          label: "Load from disk",
+          onClick: () => {
+            resetSaveState()
+            reloadPage(id)
+          },
+        },
+      })
+    }
     return false
   }
 }

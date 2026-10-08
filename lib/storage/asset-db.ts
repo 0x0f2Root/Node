@@ -3,7 +3,9 @@
 // object store per feature, string keys. Nothing here leaves the browser.
 
 const DATABASE = "node-assets"
-const VERSION = 2
+// Version 3 briefly added a third store; the number stays so browsers that
+// already opened it are not asked to go backwards.
+const VERSION = 3
 
 export type AssetStore = "background" | "repositories"
 

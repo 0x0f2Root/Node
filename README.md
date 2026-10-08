@@ -1,17 +1,21 @@
-# <img src="./public/node.svg" alt="Node Markdown Editor" width="42" height="42" /> Node Markdown Editor
-
 <p align="center">
-  <img src="./public/Node.png" alt="Node Markdown Editor preview" width="1000" />
+  <img src="./public/banner.png" alt="Node Markdown Editor banner" width="1200" />
 </p>
 
-A modern markdown editor and workspace app designed for writing, organizing, and navigating project notes in a clean Node-inspired experience.
+# Node Markdown Editor
+
+A modern markdown editor and workspace application for writing, organizing, and navigating project notes in a focused, production-ready environment.
+
+## Overview
+
+Node Markdown Editor is built to combine fast markdown authoring with practical project organization tools. It helps teams and individuals capture ideas, manage notes, and maintain a clear structure across workspaces.
 
 ## Features
 
 - Rich markdown editing experience
-- Workspace and page organization
+- Structured workspace and page organization
 - Search, task, and calendar views
-- Built with Next.js and shadcn/ui
+- Clean, modern interface powered by Next.js and shadcn/ui
 
 ## Getting started
 
@@ -20,7 +24,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000 to view the app.
+Then open http://localhost:3000 in your browser.
 
 ## Tech stack
 

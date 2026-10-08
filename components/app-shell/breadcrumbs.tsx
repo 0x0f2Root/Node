@@ -2,8 +2,9 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useParams, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 
+import { usePageParams } from "@/components/pages/use-page-params"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -42,7 +43,7 @@ const STATIC_ROUTES: Record<string, string> = {
 /** The current location: Workspace / Engineering / Architecture. */
 export function AppBreadcrumbs() {
   const pathname = usePathname()
-  const params = useParams<{ pageId?: string }>()
+  const params = usePageParams()
   const { pages } = usePagesState()
   const repositories = useRepositories()
 

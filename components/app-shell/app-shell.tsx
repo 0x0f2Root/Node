@@ -8,6 +8,7 @@ import { WorkspaceUIProvider } from "@/components/app-shell/workspace-ui"
 import { CommandPalette } from "@/components/command/command-palette"
 import { PageDialogs } from "@/components/pages/page-dialogs"
 import { WorkspaceDialog } from "@/components/pages/workspace-dialog"
+import { LegacyImportPrompt } from "@/components/project/project-dialogs"
 import { RepositoryImportDialog } from "@/components/repositories/repository-import-dialog"
 import { WorkspaceBackground } from "@/components/theme/background-layer"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
@@ -52,6 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <CommandPalette />
       <PageDialogs />
       <WorkspaceDialog />
+      <LegacyImportPrompt />
       <RepositoryImportDialog />
     </WorkspaceUIProvider>
   )

@@ -2,12 +2,14 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useParams, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 
 import { useWorkspaceUI } from "@/components/app-shell/workspace-ui"
 import { PageContextMenu } from "@/components/pages/page-context-menu"
 import { PageTree } from "@/components/pages/page-tree"
 import { usePageActions } from "@/components/pages/use-page-actions"
+import { usePageParams } from "@/components/pages/use-page-params"
+import { runReload } from "@/components/project/project-actions"
 import { RepositoryTree } from "@/components/repositories/repository-tree"
 import { Button } from "@/components/ui/button"
 import {
@@ -19,6 +21,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Kbd } from "@/components/ui/kbd"
@@ -52,6 +55,7 @@ import {
   ChevronRightIcon,
   FilePlusIcon,
   FolderPlusIcon,
+  RefreshCwIcon,
   PlusIcon,
   ClockIcon,
   HomeIcon,
@@ -168,7 +172,7 @@ function PageLinks({
 
 export function AppSidebar() {
   const pathname = usePathname()
-  const params = useParams<{ pageId?: string }>()
+  const params = usePageParams()
   const { setCommandOpen } = useWorkspaceUI()
   const { isMobile, setOpenMobile } = useSidebar()
   const actions = usePageActions()
@@ -315,7 +319,7 @@ export function AppSidebar() {
               >
                 <PlusIcon className="size-4" aria-hidden="true" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-48">
+              <DropdownMenuContent align="start" className="w-52">
                 <DropdownMenuItem onClick={() => actions.createWorkspace()}>
                   <LayersIcon />
                   New workspace
@@ -331,6 +335,11 @@ export function AppSidebar() {
                 >
                   <FolderPlusIcon />
                   New folder
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => void runReload()}>
+                  <RefreshCwIcon />
+                  Reload from disk
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

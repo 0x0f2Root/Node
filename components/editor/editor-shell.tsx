@@ -18,7 +18,16 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { recordVisit } from "@/lib/pages/recents"
 import { clearUnsaved, markUnsaved, savePage } from "@/lib/pages/save-status"
-import { getPages, loadPages, usePagesState } from "@/lib/pages/store"
+import {
+  ensureContent,
+  getPages,
+  loadPages,
+  resolvePageId,
+  setPageDirty,
+  stablePageKey,
+  usePagesState,
+} from "@/lib/pages/store"
+import { pageHref } from "@/lib/pages/tree"
 import type { Page } from "@/lib/pages/types"
 import { FONT_SIZE_PX, useEditorSettings } from "@/lib/settings/store"
 import { cn } from "@/lib/utils"
@@ -47,8 +56,8 @@ const NodeEditor = dynamic(
 
 /**
  * Debounced persistence around the editor: onChange hands over the
- * serialized Markdown/MDX, and after a pause it is written through the page
- * repository. Pending edits are flushed when the page is left or hidden.
+ * serialized Markdown/MDX, and after a pause it is written to the page's
+ * file. Pending edits are flushed when the page is left or hidden.
  */
 function useAutosave(pageId: string) {
   const pending = React.useRef<string | null>(null)
@@ -62,12 +71,22 @@ function useAutosave(pageId: string) {
     }
     pending.current = null
     clearUnsaved()
-    await savePage(pageId, { content })
+    const current = getPages().find((page) => page.id === resolvePageId(pageId))
+    if (!current || current.loaded === false) {
+      // Gone, or being read from disk again: these edits were given up.
+      return
+    }
+    const saved = await savePage(pageId, { content })
+    if (saved && pending.current === null) {
+      setPageDirty(pageId, false)
+    }
   }, [pageId])
 
   const onChange = React.useCallback(
     (content: string) => {
-      const current = getPages().find((page) => page.id === pageId)
+      const current = getPages().find(
+        (page) => page.id === resolvePageId(pageId)
+      )
       if (!current) {
         return
       }
@@ -76,6 +95,7 @@ function useAutosave(pageId: string) {
         return
       }
       pending.current = content
+      setPageDirty(pageId, true)
       markUnsaved()
       clearTimeout(timer.current)
       timer.current = setTimeout(() => void flush(), AUTOSAVE_DELAY_MS)
@@ -102,7 +122,7 @@ function EditorSurface({ page }: { page: Page }) {
 
   return (
     <div data-node-editor="">
-      <NodeEditor source={source} onChange={onChange} />
+      <NodeEditor pageId={page.id} source={source} onChange={onChange} />
     </div>
   )
 }
@@ -125,7 +145,7 @@ class EditorErrorBoundary extends React.Component<
       <StateMessage
         icon={<AlertCircleIcon />}
         title="The editor ran into a problem"
-        description="Your saved Markdown is intact. Reload the editor, or export the page from its menu."
+        description="Your Markdown file is intact. Reload the editor, or open the file in another program."
       >
         <Button
           variant="outline"
@@ -167,15 +187,32 @@ export function EditorShell({ pageId }: { pageId: string }) {
   const { status, pages, error } = usePagesState()
   const settings = useEditorSettings()
 
-  const page = pages.find((candidate) => candidate.id === pageId)
+  // A page's id is its path. After a rename or move the address in the URL
+  // is the old one: keep showing the page and move the URL along.
+  const currentId = resolvePageId(pageId)
+  const page = pages.find((candidate) => candidate.id === currentId)
   // Only documents count as "recently opened"; folders are not visits.
   const exists = page?.kind === "page"
+  const unread = exists && page.loaded === false
+
+  React.useEffect(() => {
+    if (currentId !== pageId) {
+      // Not a navigation: that would restart the editor mid-sentence.
+      window.history.replaceState(null, "", pageHref(currentId))
+    }
+  }, [currentId, pageId])
 
   React.useEffect(() => {
     if (exists) {
-      recordVisit(pageId)
+      recordVisit(currentId)
     }
-  }, [exists, pageId])
+  }, [exists, currentId])
+
+  React.useEffect(() => {
+    if (unread) {
+      void ensureContent(currentId).catch(() => undefined)
+    }
+  }, [unread, currentId])
 
   const frame = cn(
     "mx-auto w-full px-6 pt-10 pb-40 sm:px-10 md:pt-14",
@@ -197,7 +234,7 @@ export function EditorShell({ pageId }: { pageId: string }) {
       <StateMessage
         icon={<AlertCircleIcon />}
         title="This page could not be loaded"
-        description={error ?? "The workspace storage could not be read."}
+        description={error ?? "The project folder could not be read."}
       >
         <Button variant="outline" size="sm" onClick={() => void loadPages()}>
           Try again
@@ -211,7 +248,7 @@ export function EditorShell({ pageId }: { pageId: string }) {
       <StateMessage
         icon={<FileQuestionIcon />}
         title="Page not found"
-        description="It may have been deleted, or the link may come from another browser."
+        description="Its file may have been renamed, moved or deleted outside Node."
       >
         <Link
           href="/workspace"
@@ -242,9 +279,15 @@ export function EditorShell({ pageId }: { pageId: string }) {
       }
     >
       <DocumentHeader page={page} />
-      <EditorErrorBoundary key={page.id}>
-        <EditorSurface key={page.id} page={page} />
-      </EditorErrorBoundary>
+      {unread ? (
+        <EditorSkeleton />
+      ) : (
+        // Keyed by an identity that survives a rename, so retitling a page
+        // does not restart the editor under the cursor.
+        <EditorErrorBoundary key={stablePageKey(page.id)}>
+          <EditorSurface key={stablePageKey(page.id)} page={page} />
+        </EditorErrorBoundary>
+      )}
     </article>
   )
 }
