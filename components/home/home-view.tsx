@@ -3,6 +3,10 @@
 import * as React from "react"
 
 import { useWorkspaceUI } from "@/components/app-shell/workspace-ui"
+import { ActivityTracker } from "@/components/home/activity-tracker"
+import { HtbLogo } from "@/components/home/htb-logo"
+import { HtbTracker } from "@/components/home/htb-tracker"
+import { SkillAssessment } from "@/components/home/skill-assessment"
 import { PageList, type PageListItem } from "@/components/pages/page-list"
 import { usePageActions } from "@/components/pages/use-page-actions"
 import { RecentActivity } from "@/components/spectrumui/recent-activity"
@@ -27,18 +31,22 @@ const RECENT_LIMIT = 6
 function Section({
   id,
   title,
+  icon,
   children,
 }: {
   id: string
   title: string
+  /** a small mark shown before the title */
+  icon?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
     <section id={id} aria-labelledby={`${id}-heading`} className="scroll-mt-20">
       <h2
         id={`${id}-heading`}
-        className="border-b pb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase"
+        className="flex items-center gap-1.5 border-b pb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase"
       >
+        {icon}
         {title}
       </h2>
       <div className="pt-2">{children}</div>
@@ -132,6 +140,24 @@ export function HomeView() {
         </div>
       ) : (
         <>
+          <Section id="activity" title="Activity">
+            <ActivityTracker />
+          </Section>
+
+          <Section
+            id="hackthebox"
+            title="HackTheBox"
+            icon={
+              <HtbLogo className="size-3.5 text-[#6aa800] dark:text-[#9fef00]" />
+            }
+          >
+            <HtbTracker />
+          </Section>
+
+          <Section id="skills" title="Skills">
+            {loading ? <ListSkeleton /> : <SkillAssessment pages={pages} />}
+          </Section>
+
           {loading || recentItems.length === 0 ? (
             <Section id="recent" title="Recent">
               {loading ? (

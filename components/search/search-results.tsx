@@ -1,6 +1,7 @@
 import * as React from "react"
 import Link from "next/link"
 
+import { TagList } from "@/components/tags/tag-badge"
 import { pageHref } from "@/lib/pages/tree"
 import { pageTitle } from "@/lib/pages/types"
 import type { SearchResult } from "@/lib/search/search"
@@ -47,7 +48,10 @@ export function SearchResults({
             <span className="text-sm font-medium">
               <Highlight text={pageTitle(page)} query={query} />
             </span>
-            <span className="text-xs text-muted-foreground">{path}</span>
+            <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+              {path}
+              <TagList tags={page.tags} />
+            </span>
             {snippet ? (
               <span className="line-clamp-2 text-sm text-muted-foreground">
                 <Highlight text={snippet} query={query} />

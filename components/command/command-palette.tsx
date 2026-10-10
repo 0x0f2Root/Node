@@ -30,6 +30,7 @@ import {
 } from "@/lib/repositories/store"
 import { repositoryHref } from "@/lib/repositories/types"
 import { searchPages } from "@/lib/search/search"
+import { TOOLS } from "@/lib/tools/registry"
 import {
   BookOpenIcon,
   ExternalLinkIcon,
@@ -216,6 +217,14 @@ export function CommandPalette() {
       keywords: "events schedule",
       run: () => router.push("/calendar"),
     },
+    ...TOOLS.map((tool): PaletteCommand => ({
+      id: `tool-${tool.id}`,
+      group: "Navigation",
+      label: `Open ${tool.name}`,
+      icon: tool.icon,
+      keywords: `tools utility ${tool.keywords ?? ""}`,
+      run: () => router.push(tool.href),
+    })),
     {
       id: "tasks",
       group: "Navigation",

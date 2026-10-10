@@ -11,6 +11,7 @@ import { usePageActions } from "@/components/pages/use-page-actions"
 import { usePageParams } from "@/components/pages/use-page-params"
 import { runReload } from "@/components/project/project-actions"
 import { RepositoryTree } from "@/components/repositories/repository-tree"
+import { TagBadge } from "@/components/tags/tag-badge"
 import { Button } from "@/components/ui/button"
 import {
   Collapsible,
@@ -46,8 +47,9 @@ import {
 } from "@/components/ui/tooltip"
 import { useRecents } from "@/lib/pages/recents"
 import { usePagesState } from "@/lib/pages/store"
-import { pageHref } from "@/lib/pages/tree"
+import { pageHref, tagHref } from "@/lib/pages/tree"
 import { pageTitle, type Page } from "@/lib/pages/types"
+import { TOOLS } from "@/lib/tools/registry"
 import { cn } from "@/lib/utils"
 import { useModKey } from "@/lib/utils/client"
 import {
@@ -189,6 +191,17 @@ export function AppSidebar() {
     .map((visit) => pages.find((page) => page.id === visit.id))
     .filter((page): page is Page => page !== undefined)
     .slice(0, RECENT_LIMIT)
+
+  // Tags in use, most used first.
+  const tagCounts = new Map<string, number>()
+  for (const page of pages) {
+    for (const tag of page.tags ?? []) {
+      tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1)
+    }
+  }
+  const tags = [...tagCounts.entries()].sort(
+    (a, b) => b[1] - a[1] || a[0].localeCompare(b[0])
+  )
 
   function closeOnMobile() {
     if (isMobile) {
@@ -346,6 +359,48 @@ export function AppSidebar() {
           }
         >
           <PageTree />
+        </SidebarSection>
+
+        <SidebarSection label="Tags">
+          {ready && tags.length === 0 ? (
+            <SectionHint>Tag a page under its title to group it.</SectionHint>
+          ) : (
+            <SidebarMenu>
+              {tags.map(([tag, count]) => (
+                <SidebarMenuItem key={tag}>
+                  <SidebarMenuButton
+                    render={
+                      <Link href={tagHref(tag)} onClick={closeOnMobile} />
+                    }
+                  >
+                    <TagBadge name={tag} className="max-w-40 truncate" />
+                    <span className="ml-auto text-xs text-sidebar-foreground/50 tabular-nums">
+                      {count}
+                    </span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          )}
+        </SidebarSection>
+
+        <SidebarSection label="Tools">
+          <SidebarMenu>
+            {TOOLS.map((tool) => (
+              <SidebarMenuItem key={tool.id}>
+                <SidebarMenuButton
+                  isActive={
+                    pathname === tool.href ||
+                    pathname.startsWith(`${tool.href}/`)
+                  }
+                  render={<Link href={tool.href} onClick={closeOnMobile} />}
+                >
+                  <tool.icon />
+                  <span>{tool.name}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
         </SidebarSection>
 
         <SidebarSection label="Repositories">

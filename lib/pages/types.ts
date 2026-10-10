@@ -28,6 +28,9 @@ export type Page = {
 
   favorite: boolean
 
+  /** A page's tags, by name. Kept in the frontmatter of its file. */
+  tags?: string[]
+
   createdAt: Date
   updatedAt: Date
 }
@@ -40,12 +43,19 @@ export type CreatePageInput = {
   icon?: string | null
   content?: string
   favorite?: boolean
+  tags?: string[]
 }
 
 export type UpdatePageInput = Partial<
   Pick<
     Page,
-    "title" | "description" | "parentId" | "icon" | "content" | "favorite"
+    | "title"
+    | "description"
+    | "parentId"
+    | "icon"
+    | "content"
+    | "favorite"
+    | "tags"
   >
 >
 

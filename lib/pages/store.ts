@@ -310,7 +310,12 @@ export function updatePage(
     return Promise.reject(new Error("This item no longer exists."))
   }
   if (Object.keys(rest).length > 0) {
-    const updated = { ...applyPageUpdate(first, rest), loaded: true }
+    // Only new text makes a page "read": starring or tagging a page whose
+    // file has not been opened must not pass its empty text off as loaded.
+    const updated = {
+      ...applyPageUpdate(first, rest),
+      loaded: rest.content !== undefined ? true : first.loaded,
+    }
     setPages((pages) =>
       pages.map((page) => (page.id === first.id ? updated : page))
     )
@@ -442,6 +447,7 @@ export async function duplicatePage(id: string): Promise<Page> {
       parentId,
       icon: item.icon,
       content,
+      tags: item.tags,
     })
     for (const child of all.filter((page) => page.parentId === item.id)) {
       await copy(child, created.id, child.title)

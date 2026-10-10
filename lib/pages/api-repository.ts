@@ -18,6 +18,7 @@ interface Entry {
   path: string
   directory: boolean
   modified: number
+  tags?: string[]
 }
 
 // What a file or directory cannot carry itself stays in browser storage,
@@ -105,6 +106,7 @@ function describe(entry: Entry, content?: string): Page {
     loaded: content !== undefined,
     revision: entry.modified,
     favorite: favorites.get().includes(id),
+    tags: entry.tags ?? [],
     createdAt: date,
     updatedAt: date,
   }
@@ -132,9 +134,9 @@ export class ApiPageRepository implements PageRepository {
       if (!isPageFile(path)) {
         return describe(await call<Entry>(`${query}&stat=1`))
       }
-      const page = await call<{ content: string; modified: number }>(query)
+      const page = await call<Entry & { content: string }>(query)
       return describe(
-        { path, directory: false, modified: page.modified },
+        { path, directory: false, modified: page.modified, tags: page.tags },
         page.content
       )
     } catch (error) {
@@ -153,11 +155,14 @@ export class ApiPageRepository implements PageRepository {
       parent,
       toFileName(input.title ?? "Untitled") + (kind === "page" ? ".md" : "")
     )
-    const entry = await send<Entry>("POST", {
+    let entry = await send<Entry>("POST", {
       path,
       directory: kind !== "page",
       content: input.content ?? "",
     })
+    if (kind === "page" && input.tags?.length) {
+      entry = await send<Entry>("PATCH", { path, tags: input.tags })
+    }
 
     const id = pathToId(entry.path)
     if (kind === "workspace" && (input.icon || input.description)) {
@@ -191,6 +196,10 @@ export class ApiPageRepository implements PageRepository {
         content: input.content,
         expected,
       })
+    }
+
+    if (input.tags !== undefined && page) {
+      entry = await send<Entry>("PATCH", { path, tags: input.tags })
     }
 
     if (input.title !== undefined || input.parentId !== undefined) {
@@ -235,7 +244,7 @@ export class ApiPageRepository implements PageRepository {
     entry ??= await call<Entry>(
       `/api/pages?path=${encodeURIComponent(path)}&stat=1`
     )
-    return describe(entry)
+    return describe({ ...entry, tags: entry.tags ?? input.tags })
   }
 
   async deletePage(id: string): Promise<void> {

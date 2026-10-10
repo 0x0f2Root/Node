@@ -175,53 +175,53 @@
 
 /* Syntax colours for the repository code viewer. They reuse the editor's
    highlight tokens, so code looks the same in a document and in a file. */
-.repo-code .hljs-comment,
-.repo-code .hljs-quote {
+:is(.repo-code, .tool-code) .hljs-comment,
+:is(.repo-code, .tool-code) .hljs-quote {
     color: var(--fde-hl-comment);
 }
 
-.repo-code .hljs-keyword,
-.repo-code .hljs-selector-tag,
-.repo-code .hljs-literal,
-.repo-code .hljs-built_in {
+:is(.repo-code, .tool-code) .hljs-keyword,
+:is(.repo-code, .tool-code) .hljs-selector-tag,
+:is(.repo-code, .tool-code) .hljs-literal,
+:is(.repo-code, .tool-code) .hljs-built_in {
     color: var(--fde-hl-keyword);
 }
 
-.repo-code .hljs-string,
-.repo-code .hljs-regexp,
-.repo-code .hljs-addition {
+:is(.repo-code, .tool-code) .hljs-string,
+:is(.repo-code, .tool-code) .hljs-regexp,
+:is(.repo-code, .tool-code) .hljs-addition {
     color: var(--fde-hl-string);
 }
 
-.repo-code .hljs-number,
-.repo-code .hljs-symbol,
-.repo-code .hljs-bullet {
+:is(.repo-code, .tool-code) .hljs-number,
+:is(.repo-code, .tool-code) .hljs-symbol,
+:is(.repo-code, .tool-code) .hljs-bullet {
     color: var(--fde-hl-number);
 }
 
-.repo-code .hljs-title,
-.repo-code .hljs-section,
-.repo-code .hljs-function {
+:is(.repo-code, .tool-code) .hljs-title,
+:is(.repo-code, .tool-code) .hljs-section,
+:is(.repo-code, .tool-code) .hljs-function {
     color: var(--fde-hl-title);
 }
 
-.repo-code .hljs-type,
-.repo-code .hljs-class {
+:is(.repo-code, .tool-code) .hljs-type,
+:is(.repo-code, .tool-code) .hljs-class {
     color: var(--fde-hl-type);
 }
 
-.repo-code .hljs-attr,
-.repo-code .hljs-attribute,
-.repo-code .hljs-variable,
-.repo-code .hljs-template-variable,
-.repo-code .hljs-meta {
+:is(.repo-code, .tool-code) .hljs-attr,
+:is(.repo-code, .tool-code) .hljs-attribute,
+:is(.repo-code, .tool-code) .hljs-variable,
+:is(.repo-code, .tool-code) .hljs-template-variable,
+:is(.repo-code, .tool-code) .hljs-meta {
     color: var(--fde-hl-attr);
 }
 
-.repo-code .hljs-tag,
-.repo-code .hljs-name,
-.repo-code .hljs-selector-id,
-.repo-code .hljs-selector-class {
+:is(.repo-code, .tool-code) .hljs-tag,
+:is(.repo-code, .tool-code) .hljs-name,
+:is(.repo-code, .tool-code) .hljs-selector-id,
+:is(.repo-code, .tool-code) .hljs-selector-class {
     color: var(--fde-hl-tag);
 }
 

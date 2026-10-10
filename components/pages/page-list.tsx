@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 
+import { TagList } from "@/components/tags/tag-badge"
 import { pageHref, pagePath } from "@/lib/pages/tree"
 import { pageTitle, type Page } from "@/lib/pages/types"
 import { formatRelativeTime, useNow } from "@/lib/utils/time"
@@ -44,6 +45,10 @@ export function PageList({
                 {pagePath(pages, page.id)}
               </span>
             </span>
+            <TagList
+              tags={page.tags}
+              className="hidden max-w-[45%] shrink-0 flex-wrap items-center justify-end gap-1 sm:flex"
+            />
             {page.favorite ? (
               <StarIcon
                 className="size-3.5 shrink-0 fill-current text-muted-foreground"

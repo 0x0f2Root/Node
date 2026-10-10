@@ -1,3 +1,4 @@
+import { recordActivity } from "@/lib/pages/activity-log"
 import { failure, forbidden, sameOrigin } from "@/lib/pages/api-guard"
 import {
   ContentError,
@@ -8,6 +9,7 @@ import {
   readPage,
   statEntry,
   writePage,
+  writeTags,
 } from "@/lib/pages/content-directory"
 
 // Reads and writes files in data/pages/, so it runs on the Node.js server
@@ -66,13 +68,19 @@ export async function POST(request: Request) {
       input.directory === true,
       typeof input.content === "string" ? input.content : ""
     )
+    if (!entry.directory) {
+      void recordActivity(entry.path)
+    }
     return Response.json(entry, { status: 201 })
   } catch (error) {
     return failure(error)
   }
 }
 
-/** Saves text ({ path, content, expected? }) or moves ({ path, to }). */
+/**
+ * Saves text ({ path, content, expected? }), sets tags ({ path, tags }) or
+ * moves ({ path, to }).
+ */
 export async function PATCH(request: Request) {
   if (!sameOrigin(request)) {
     return forbidden()
@@ -84,11 +92,15 @@ export async function PATCH(request: Request) {
       await moveEntry(path, input.to)
       return Response.json(await statEntry(input.to))
     }
+    if (Array.isArray(input.tags)) {
+      return Response.json(await writeTags(path, input.tags))
+    }
     const modified = await writePage(
       path,
       text(input.content, "content"),
       typeof input.expected === "number" ? input.expected : undefined
     )
+    void recordActivity(path)
     return Response.json({ path, directory: false, modified })
   } catch (error) {
     return failure(error)

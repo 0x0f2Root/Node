@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useTheme } from "next-themes"
+import { toast } from "sonner"
 
 import { THEMES } from "@/components/app-shell/theme-menu"
 import { useWorkspaceUI } from "@/components/app-shell/workspace-ui"
@@ -11,8 +12,10 @@ import {
 } from "@/components/project/project-actions"
 import { BackgroundSettings } from "@/components/theme/background-settings"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Kbd, KbdGroup } from "@/components/ui/kbd"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { saveHtbProfile, useHtb } from "@/lib/htb/store"
 import { countLegacyPages } from "@/lib/pages/legacy-import"
 import { usePagesState } from "@/lib/pages/store"
 import {
@@ -117,6 +120,78 @@ function Shortcut({ keys, label }: { keys: string[]; label: string }) {
   )
 }
 
+// Which HackTheBox player the tracker on Home follows, and whether the
+// optional App Token is in place. The token is never typed into Node: the
+// server reads it from .env.local.
+function HtbSettings() {
+  const { status, response } = useHtb()
+
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const profile = String(
+      new FormData(event.currentTarget).get("profile") ?? ""
+    )
+    try {
+      await saveHtbProfile(profile)
+      toast.success(
+        profile.trim()
+          ? "HackTheBox profile saved"
+          : "HackTheBox tracker turned off"
+      )
+    } catch (error) {
+      toast.error("Could not save the profile", {
+        description: error instanceof Error ? error.message : undefined,
+      })
+    }
+  }
+
+  return (
+    <>
+      <Row
+        label="Profile"
+        description={
+          response?.data
+            ? `Tracking ${response.data.profile.name}. The profile has to be public.`
+            : "Your public profile link or its number. Leave empty to turn the tracker off."
+        }
+      >
+        <form onSubmit={onSubmit} className="flex gap-2">
+          <Input
+            // Remount when the saved value arrives or changes.
+            key={response?.profileId ?? "none"}
+            name="profile"
+            defaultValue={response?.profileId ?? ""}
+            placeholder="app.hackthebox.com/public/users/…"
+            aria-label="HackTheBox profile link or id"
+            autoComplete="off"
+            className="w-56"
+          />
+          <Button
+            type="submit"
+            variant="outline"
+            size="sm"
+            disabled={status === "loading"}
+          >
+            Save
+          </Button>
+        </form>
+      </Row>
+      <Row
+        label="App Token"
+        description={
+          response?.tokenConfigured
+            ? "A token is set on the server, so Home also lists your latest solves."
+            : "Optional, for the list of individual solves. Create an App Token in your HackTheBox profile settings, put it in a file named .env.local in the Node project as HTB_APP_TOKEN=your-token, then restart Node. It stays on this computer and is not saved with your notes."
+        }
+      >
+        <span className="text-sm text-muted-foreground">
+          {response?.tokenConfigured ? "Detected" : "Not set"}
+        </span>
+      </Row>
+    </>
+  )
+}
+
 export function SettingsView() {
   const { theme, setTheme } = useTheme()
   const hydrated = useHydrated()
@@ -210,6 +285,10 @@ export function SettingsView() {
             </Button>
           </Row>
         ) : null}
+      </Section>
+
+      <Section id="hackthebox" title="HackTheBox">
+        <HtbSettings />
       </Section>
 
       <Section id="shortcuts" title="Keyboard shortcuts">

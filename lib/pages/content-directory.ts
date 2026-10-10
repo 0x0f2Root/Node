@@ -7,6 +7,8 @@ import path from "node:path"
 // that directory and refuses anything that would leave it.
 
 const ROOT = path.join(process.cwd(), "data", "pages")
+// Which colour each tag is shown in. The tags themselves are in the pages.
+const TAG_STYLES_FILE = path.join(process.cwd(), "data", "tags.json")
 
 /** Where pasted and dropped images are written. Not part of the page tree. */
 export const ASSETS_DIRECTORY = "assets"
@@ -39,6 +41,129 @@ export interface ContentEntry {
   directory: boolean
   /** Modification time, epoch milliseconds. */
   modified: number
+  /** A page's tags, from its frontmatter. */
+  tags?: string[]
+}
+
+// A page's tags are a `tags:` list in the YAML frontmatter at the top of its
+// file, where other Markdown tools look for them too. Node shows and edits
+// the document below the frontmatter; whatever else the frontmatter holds is
+// kept exactly as written.
+const FRONTMATTER = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/
+const MAX_TAGS = 20
+const MAX_TAG_LENGTH = 40
+
+function splitFrontmatter(source: string) {
+  const match = source.match(FRONTMATTER)
+  if (!match) {
+    return { yaml: null, body: source }
+  }
+  return {
+    yaml: match[1],
+    // One blank line after the closing fence belongs to the fence.
+    body: source.slice(match[0].length).replace(/^\r?\n/, ""),
+  }
+}
+
+function unquote(value: string) {
+  return value
+    .trim()
+    .replace(/^(["'])(.*)\1$/, "$2")
+    .trim()
+}
+
+export function cleanTags(values: unknown): string[] {
+  if (!Array.isArray(values)) {
+    return []
+  }
+  const seen = new Set<string>()
+  const tags: string[] = []
+  for (const value of values) {
+    if (typeof value !== "string") {
+      continue
+    }
+    const tag = value
+      .replace(/[\u0000-\u001f]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, MAX_TAG_LENGTH)
+    if (tag && !seen.has(tag.toLowerCase()) && tags.length < MAX_TAGS) {
+      seen.add(tag.toLowerCase())
+      tags.push(tag)
+    }
+  }
+  return tags
+}
+
+const TAG_ITEM = /^\s*-\s+(.*)$/
+
+function parseTags(yaml: string | null): string[] {
+  if (!yaml) {
+    return []
+  }
+  const lines = yaml.split(/\r?\n/)
+  const index = lines.findIndex((line) => /^tags\s*:/.test(line))
+  if (index < 0) {
+    return []
+  }
+  const inline = lines[index].replace(/^tags\s*:/, "").trim()
+  if (inline) {
+    // tags: [a, b]   or   tags: a, b
+    return cleanTags(
+      inline
+        .replace(/^\[|\]$/g, "")
+        .split(",")
+        .map(unquote)
+    )
+  }
+  const items: string[] = []
+  for (const line of lines.slice(index + 1)) {
+    const item = line.match(TAG_ITEM)
+    if (!item) {
+      break
+    }
+    items.push(unquote(item[1]))
+  }
+  return cleanTags(items)
+}
+
+/** The frontmatter with its `tags:` entry replaced; null when left empty. */
+function withTags(yaml: string | null, tags: string[]): string | null {
+  const kept: string[] = []
+  let inTags = false
+  for (const line of yaml ? yaml.split(/\r?\n/) : []) {
+    if (/^tags\s*:/.test(line)) {
+      inTags = true
+    } else if (!(inTags && TAG_ITEM.test(line))) {
+      inTags = false
+      kept.push(line)
+    }
+  }
+  while (kept.length > 0 && kept[kept.length - 1].trim() === "") {
+    kept.pop()
+  }
+  if (tags.length > 0) {
+    // JSON strings are valid YAML, whatever characters the name has.
+    kept.push("tags:", ...tags.map((tag) => `  - ${JSON.stringify(tag)}`))
+  }
+  return kept.length > 0 ? kept.join("\n") : null
+}
+
+function compose(yaml: string | null, body: string) {
+  return yaml === null ? body : `---\n${yaml}\n---\n\n${body}`
+}
+
+// Tags sit at the very top of a file, so listing reads only its first part.
+async function readHeadTags(file: string): Promise<string[]> {
+  const handle = await fs.open(file, "r")
+  try {
+    const buffer = Buffer.alloc(4096)
+    const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0)
+    const head = buffer.subarray(0, bytesRead).toString("utf8")
+    return head.startsWith("---") ? parseTags(splitFrontmatter(head).yaml) : []
+  } finally {
+    await handle.close()
+  }
 }
 
 function code(error: unknown) {
@@ -152,7 +277,8 @@ export async function listEntries(): Promise<ContentEntry[]> {
         latest = Math.max(latest, entry.modified)
       } else if (item.isFile() && PAGE_FILE.test(item.name)) {
         const modified = modifiedOf(await fs.stat(absolute))
-        entries.push({ path: childPath, directory: false, modified })
+        const tags = await readHeadTags(absolute)
+        entries.push({ path: childPath, directory: false, modified, tags })
         latest = Math.max(latest, modified)
       }
     }
@@ -182,8 +308,13 @@ export async function statEntry(relative: string): Promise<ContentEntry> {
 export async function readPage(relative: string) {
   requirePage(relative)
   const target = await locate(relative)
-  const content = await fs.readFile(target, "utf8").catch(missing)
-  return { content, modified: modifiedOf(await fs.stat(target)) }
+  const source = await fs.readFile(target, "utf8").catch(missing)
+  const { yaml, body } = splitFrontmatter(source)
+  return {
+    content: body,
+    tags: parseTags(yaml),
+    modified: modifiedOf(await fs.stat(target)),
+  }
 }
 
 // Written beside the file and renamed over it, so a crash mid-write cannot
@@ -230,8 +361,9 @@ export async function createEntry(
 }
 
 /**
- * Saves a page's Markdown. With `expected`, refuses when the file has been
- * changed by something else since that modification time.
+ * Saves a page's Markdown, keeping the frontmatter the file already has.
+ * With `expected`, refuses when the file has been changed by something else
+ * since that modification time.
  */
 export async function writePage(
   relative: string,
@@ -248,8 +380,63 @@ export async function writePage(
   if (!(await exists(path.dirname(target)))) {
     throw new ContentError("The folder for this page no longer exists.", 404)
   }
-  await writeAtomic(target, content)
+  const existing = (await exists(target))
+    ? splitFrontmatter(await fs.readFile(target, "utf8")).yaml
+    : null
+  await writeAtomic(target, compose(existing, content))
   return modifiedOf(await fs.stat(target))
+}
+
+/** Replaces a page's tags; the document itself is not touched. */
+export async function writeTags(
+  relative: string,
+  tags: unknown
+): Promise<ContentEntry> {
+  requirePage(relative)
+  const target = await locate(relative)
+  const source = await fs.readFile(target, "utf8").catch(missing)
+  const { yaml, body } = splitFrontmatter(source)
+  const cleaned = cleanTags(tags)
+  await writeAtomic(target, compose(withTags(yaml, cleaned), body))
+  return {
+    path: relative,
+    directory: false,
+    modified: modifiedOf(await fs.stat(target)),
+    tags: cleaned,
+  }
+}
+
+/** Tag name to the id of the badge style it is shown in. */
+export async function readTagStyles(): Promise<Record<string, string>> {
+  try {
+    const parsed: unknown = JSON.parse(
+      await fs.readFile(TAG_STYLES_FILE, "utf8")
+    )
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? (parsed as Record<string, string>)
+      : {}
+  } catch (error) {
+    if (code(error) === "ENOENT" || error instanceof SyntaxError) {
+      return {}
+    }
+    throw error
+  }
+}
+
+export async function writeTagStyles(input: unknown) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    throw new ContentError("Tag styles must be an object.", 400)
+  }
+  const styles: Record<string, string> = {}
+  for (const [name, style] of Object.entries(input)) {
+    const [tag] = cleanTags([name])
+    if (tag && typeof style === "string" && /^[a-z-]{1,40}$/.test(style)) {
+      styles[tag] = style
+    }
+  }
+  await fs.mkdir(path.dirname(TAG_STYLES_FILE), { recursive: true })
+  await writeAtomic(TAG_STYLES_FILE, `${JSON.stringify(styles, null, 2)}\n`)
+  return styles
 }
 
 /** Renames or moves a page or directory. Never replaces the destination. */

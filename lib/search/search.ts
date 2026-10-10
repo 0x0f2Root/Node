@@ -65,9 +65,15 @@ export function searchPages(
     const title = page.title.toLowerCase()
     const text = toPlainText(page.content)
     const lowerText = text.toLowerCase()
+    const tags = (page.tags ?? []).join(" ").toLowerCase()
 
     if (
-      !terms.every((term) => title.includes(term) || lowerText.includes(term))
+      !terms.every(
+        (term) =>
+          title.includes(term) ||
+          lowerText.includes(term) ||
+          tags.includes(term)
+      )
     ) {
       continue
     }
@@ -84,6 +90,9 @@ export function searchPages(
     for (const term of terms) {
       if (title.includes(term)) {
         score += 20
+      }
+      if (tags.includes(term)) {
+        score += 30
       }
       if (pageHeadings.includes(term)) {
         score += 10

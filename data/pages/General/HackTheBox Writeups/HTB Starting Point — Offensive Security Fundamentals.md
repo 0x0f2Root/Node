@@ -1,3 +1,12 @@
+---
+tags:
+  - "HackTheBox"
+  - "Telnet"
+  - "Ftp"
+  - "SMB"
+  - "Easy"
+---
+
 # HTB Starting Point — Offensive Security Fundamentals
 
 > Personal cheatsheet for the fundamentals learned through Hack The Box Starting Point.

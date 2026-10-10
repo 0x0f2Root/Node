@@ -1,0 +1,37 @@
+{
+  "2026-10-08": [
+    "General/Untitled.md",
+    "General/Hola.md",
+    "General/Techniques/Web/Untitled.md",
+    "General/Techniques/Web/SQL Injection (2)/Untitled.md",
+    "General/Techniques/Web/SQL Injection (2)/SQL Bypass.md",
+    "General/SQL/MySQL/Untitled.md",
+    "General/SQL/MySQL/MySQL CheatSheet.md",
+    "General/Metasploit.md",
+    "General/MSFVenom.md",
+    "General/NetExec.md",
+    "General/Active port scanning.md",
+    "General/SQLMap.md",
+    "General/Privilege Escalation via PATH Manipulation and SUID Binaries.md",
+    "General/Module Reverse Shells.md",
+    "General/XSS Basic Stealers.md",
+    "General/Active Directory Windows.md",
+    "General/Windows Post-Exploitation Basics.md",
+    "General/Windows Fundamentals.md",
+    "General/También podemos usar esta otra forma.md"
+  ],
+  "2026-10-09": [
+    "General/XSS Basic Stealers.md",
+    "General/MSFVenom.md",
+    "General/Tools/Untitled.md",
+    "General/Tools/Cracking Passwords.md",
+    "General/SQL/MySQL/MySQL CheatSheet.md",
+    "General/SQL/Web/SQL Injection (2)/SQLMap.md",
+    "General/TryHackMe/Untitled.md",
+    "General/TryHackMe/Windows Command Line.md"
+  ],
+  "2026-10-10": [
+    "General/HackTheBox Writeups/Web Challenges/Untitled.md",
+    "General/HackTheBox Writeups/Web Challenges/HackTheBox TreaPortal.md"
+  ]
+}

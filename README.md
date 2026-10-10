@@ -2,6 +2,10 @@
   <img src="./public/banner.png" alt="Node Markdown Editor banner" width="1200" />
 </p>
 
+<p align="center">
+  <img src="./public/demoX.png" alt="Node Markdown Editor demo" width="1200" />
+</p>
+
 # Node Markdown Editor
 
 A modern markdown editor and workspace application for writing, organizing, and navigating project notes in a focused, production-ready environment.

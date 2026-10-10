@@ -107,6 +107,11 @@ export function pagePath(pages: Page[], id: string): string {
     : WORKSPACE_LABEL
 }
 
+/** The list of every page carrying a tag. */
+export function tagHref(tag: string) {
+  return `/workspace?tag=${encodeURIComponent(tag)}`
+}
+
 export function pageHref(id: string) {
   return `/workspace/${id}`
 }

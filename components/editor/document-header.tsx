@@ -1,10 +1,14 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { toast } from "sonner"
 
+import { TagBadge } from "@/components/tags/tag-badge"
+import { TagPicker } from "@/components/tags/tag-picker"
 import { savePage } from "@/lib/pages/save-status"
 import { uniqueTitle } from "@/lib/pages/store"
+import { tagHref } from "@/lib/pages/tree"
 import { DEFAULT_PAGE_TITLE, type Page } from "@/lib/pages/types"
 import { formatRelativeTime, useNow } from "@/lib/utils/time"
 
@@ -76,6 +80,20 @@ export function DocumentHeader({ page }: { page: Page }) {
       <p className="mt-2 min-h-4 text-xs text-muted-foreground">
         {now ? `Updated ${formatRelativeTime(page.updatedAt, now)}` : ""}
       </p>
+      {page.kind === "page" ? (
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          {(page.tags ?? []).map((tag) => (
+            <TagBadge
+              key={tag}
+              name={tag}
+              render={
+                <Link href={tagHref(tag)} title={`Pages tagged ${tag}`} />
+              }
+            />
+          ))}
+          <TagPicker page={page} />
+        </div>
+      ) : null}
     </header>
   )
 }

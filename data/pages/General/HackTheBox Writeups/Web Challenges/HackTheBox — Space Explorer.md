@@ -1,3 +1,13 @@
+---
+tags:
+  - "HackTheBox"
+  - "Web-Challenge"
+  - "Go"
+  - "Python"
+  - "Web"
+  - "Easy"
+---
+
 # HackTheBox — Space Explorer
 
 > **Difficulty:** Easy\

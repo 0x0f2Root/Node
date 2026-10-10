@@ -13,6 +13,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { toolForPath } from "@/lib/tools/registry"
 import { usePagesState } from "@/lib/pages/store"
 import { WORKSPACE_LABEL, getAncestors, pageHref } from "@/lib/pages/tree"
 import { pageTitle } from "@/lib/pages/types"
@@ -51,6 +52,11 @@ export function AppBreadcrumbs() {
     const staticLabel = STATIC_ROUTES[pathname]
     if (staticLabel) {
       return [{ label: staticLabel }]
+    }
+
+    const tool = toolForPath(pathname)
+    if (tool) {
+      return [{ label: "Tools" }, { label: tool.name }]
     }
 
     // /repositories/<id>/<path…>: repository / folder / file
