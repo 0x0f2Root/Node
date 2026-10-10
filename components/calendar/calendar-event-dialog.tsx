@@ -23,6 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { DatePicker } from "@/components/ui/date-picker"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -109,18 +110,28 @@ function pageLabel(pages: Page[], page: Page): string {
 function Field({
   label,
   htmlFor,
+  required,
   action,
   children,
 }: {
   label: string
   htmlFor: string
+  required?: boolean
   action?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       <div className="flex items-center justify-between gap-2">
-        <Label htmlFor={htmlFor}>{label}</Label>
+        <Label htmlFor={htmlFor}>
+          {label}
+          {required ? (
+            <span className="text-destructive" aria-hidden="true">
+              {" "}
+              *
+            </span>
+          ) : null}
+        </Label>
         {action}
       </div>
       {children}
@@ -214,95 +225,98 @@ function EventForm({
         </DialogHeader>
 
         <div className="flex flex-col gap-3.5">
-          <Field label="Title" htmlFor={`${id}-title`}>
+          <Field label="Title" htmlFor={`${id}-title`} required>
             <Input
               id={`${id}-title`}
               value={values.title}
               onChange={(event) => patch({ title: event.target.value })}
               placeholder="Architecture review"
               autoComplete="off"
+              required
+              aria-required="true"
+              aria-invalid={error !== null}
               autoFocus={!editing}
             />
           </Field>
 
-          <div className="flex items-center justify-between gap-4">
-            <Label htmlFor={`${id}-all-day`}>All day</Label>
-            <Switch
-              id={`${id}-all-day`}
-              checked={values.allDay}
-              onCheckedChange={(allDay) => patch({ allDay })}
-            />
-          </div>
+          {/* When: a bordered group that holds the all-day toggle and the
+              date/time controls it switches between. */}
+          <div className="flex flex-col gap-3 rounded-lg border bg-muted/30 p-3">
+            <label
+              htmlFor={`${id}-all-day`}
+              className="flex items-center justify-between gap-4"
+            >
+              <span className="flex flex-col">
+                <span className="text-sm font-medium">All day</span>
+                <span className="text-xs text-muted-foreground">
+                  {values.allDay
+                    ? "Spans whole days, with no start or end time."
+                    : "Has a start and end time on one day."}
+                </span>
+              </span>
+              <Switch
+                id={`${id}-all-day`}
+                checked={values.allDay}
+                onCheckedChange={(allDay) => patch({ allDay })}
+              />
+            </label>
 
-          {values.allDay ? (
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Starts" htmlFor={`${id}-date`}>
-                <Input
-                  id={`${id}-date`}
-                  type="date"
-                  required
-                  value={values.date}
-                  onChange={(event) =>
-                    patch({
-                      date: event.target.value,
-                      // Keep the end from falling before the new start.
-                      endDate:
-                        values.endDate < event.target.value
-                          ? event.target.value
-                          : values.endDate,
-                    })
-                  }
-                />
-              </Field>
-              <Field label="Ends" htmlFor={`${id}-end-date`}>
-                <Input
-                  id={`${id}-end-date`}
-                  type="date"
-                  required
-                  min={values.date}
-                  value={values.endDate}
-                  onChange={(event) => patch({ endDate: event.target.value })}
-                />
-              </Field>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-[1.4fr_1fr_1fr]">
-              <div className="col-span-2 sm:col-span-1">
-                <Field label="Date" htmlFor={`${id}-date`}>
-                  <Input
+            {values.allDay ? (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <Field label="Starts" htmlFor={`${id}-date`}>
+                  <DatePicker
                     id={`${id}-date`}
-                    type="date"
-                    required
                     value={values.date}
-                    onChange={(event) =>
+                    onChange={(date) =>
                       patch({
-                        date: event.target.value,
-                        endDate: event.target.value,
+                        date,
+                        // Keep the end from falling before the new start.
+                        endDate: values.endDate < date ? date : values.endDate,
                       })
                     }
                   />
                 </Field>
+                <Field label="Ends" htmlFor={`${id}-end-date`}>
+                  <DatePicker
+                    id={`${id}-end-date`}
+                    value={values.endDate}
+                    min={values.date}
+                    onChange={(endDate) => patch({ endDate })}
+                  />
+                </Field>
               </div>
-              <Field label="Start" htmlFor={`${id}-start`}>
-                <Input
-                  id={`${id}-start`}
-                  type="time"
-                  required
-                  value={values.startTime}
-                  onChange={(event) => patch({ startTime: event.target.value })}
-                />
-              </Field>
-              <Field label="End" htmlFor={`${id}-end`}>
-                <Input
-                  id={`${id}-end`}
-                  type="time"
-                  required
-                  value={values.endTime}
-                  onChange={(event) => patch({ endTime: event.target.value })}
-                />
-              </Field>
-            </div>
-          )}
+            ) : (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1.6fr_1fr_1fr]">
+                <Field label="Date" htmlFor={`${id}-date`}>
+                  <DatePicker
+                    id={`${id}-date`}
+                    value={values.date}
+                    onChange={(date) => patch({ date, endDate: date })}
+                  />
+                </Field>
+                <Field label="Start" htmlFor={`${id}-start`}>
+                  <Input
+                    id={`${id}-start`}
+                    type="time"
+                    required
+                    value={values.startTime}
+                    onChange={(event) =>
+                      patch({ startTime: event.target.value })
+                    }
+                  />
+                </Field>
+                <Field label="End" htmlFor={`${id}-end`}>
+                  <Input
+                    id={`${id}-end`}
+                    type="time"
+                    required
+                    value={values.endTime}
+                    onChange={(event) => patch({ endTime: event.target.value })}
+                  />
+                </Field>
+              </div>
+            )}
+          </div>
 
           <Field
             label="Linked page"

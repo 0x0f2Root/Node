@@ -28,8 +28,19 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# Environment files may contain secrets. Keep the example template shareable.
 .env*
+!.env.example
+
+# Local workspace content and generated state. Only the bundled onboarding
+# pages are versioned; notes created while using Node stay on this machine.
+/data/pages/*
+!/data/pages/Getting Started/
+/data/pages/Getting Started/*
+!/data/pages/Getting Started/*.md
+/data/activity.json
+/data/htb.json
+/data/tags.json
 
 # vercel
 .vercel

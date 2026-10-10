@@ -22,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { DatePicker } from "@/components/ui/date-picker"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -95,18 +96,28 @@ function pageLabel(pages: Page[], page: Page): string {
 function Field({
   label,
   htmlFor,
+  required,
   action,
   children,
 }: {
   label: string
   htmlFor: string
+  required?: boolean
   action?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       <div className="flex items-center justify-between gap-2">
-        <Label htmlFor={htmlFor}>{label}</Label>
+        <Label htmlFor={htmlFor}>
+          {label}
+          {required ? (
+            <span className="text-destructive" aria-hidden="true">
+              {" "}
+              *
+            </span>
+          ) : null}
+        </Label>
         {action}
       </div>
       {children}
@@ -176,13 +187,15 @@ function TaskForm({
       </DialogHeader>
 
       <div className="flex flex-col gap-3.5">
-        <Field label="Title" htmlFor={`${id}-title`}>
+        <Field label="Title" htmlFor={`${id}-title`} required>
           <Input
             id={`${id}-title`}
             value={values.title}
             onChange={(event) => patch({ title: event.target.value })}
             placeholder="Write the deployment runbook"
             autoComplete="off"
+            required
+            aria-required="true"
             aria-invalid={error !== null}
             autoFocus={!editing}
           />
@@ -273,11 +286,11 @@ function TaskForm({
             ) : null
           }
         >
-          <Input
+          <DatePicker
             id={`${id}-due`}
-            type="date"
             value={values.dueDate}
-            onChange={(event) => patch({ dueDate: event.target.value })}
+            onChange={(dueDate) => patch({ dueDate })}
+            placeholder="No due date"
           />
         </Field>
 

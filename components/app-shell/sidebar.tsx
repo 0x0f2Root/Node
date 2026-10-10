@@ -49,6 +49,8 @@ import { useRecents } from "@/lib/pages/recents"
 import { usePagesState } from "@/lib/pages/store"
 import { pageHref, tagHref } from "@/lib/pages/tree"
 import { pageTitle, type Page } from "@/lib/pages/types"
+// Tools in the sidebar show a soft IconTile around the PackageIcon glyph.
+import { IconTile } from "@/components/reui/icon-tile"
 import { TOOLS } from "@/lib/tools/registry"
 import { cn } from "@/lib/utils"
 import { useModKey } from "@/lib/utils/client"
@@ -57,6 +59,7 @@ import {
   ChevronRightIcon,
   FilePlusIcon,
   FolderPlusIcon,
+  PackageIcon,
   RefreshCwIcon,
   PlusIcon,
   ClockIcon,
@@ -389,13 +392,16 @@ export function AppSidebar() {
             {TOOLS.map((tool) => (
               <SidebarMenuItem key={tool.id}>
                 <SidebarMenuButton
+                  className="h-auto py-1.5"
                   isActive={
                     pathname === tool.href ||
                     pathname.startsWith(`${tool.href}/`)
                   }
                   render={<Link href={tool.href} onClick={closeOnMobile} />}
                 >
-                  <tool.icon />
+                  <IconTile variant="soft" size="xs" aria-hidden="true">
+                    <PackageIcon />
+                  </IconTile>
                   <span>{tool.name}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>

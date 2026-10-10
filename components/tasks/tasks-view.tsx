@@ -17,7 +17,13 @@ import {
   TaskDialog,
   type TaskDialogState,
 } from "@/components/tasks/task-dialog"
-import { TaskFilters, type TaskFilter } from "@/components/tasks/task-filters"
+import {
+  EMPTY_FILTER,
+  TaskFilters,
+  isFilterActive,
+  taskMatchesFilter,
+  type TaskFilterState,
+} from "@/components/tasks/task-filters"
 import { Button } from "@/components/ui/button"
 import {
   Empty,
@@ -27,17 +33,17 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
+import { Skeleton } from "@/components/ui/skeleton"
 import { usePagesState } from "@/lib/pages/store"
 import {
   TASK_STATUSES,
   applyBoard,
-  dueState,
   duplicateTask,
   useTasks,
-  type Task,
   type TaskBoard,
   type TaskStatus,
 } from "@/lib/tasks/tasks"
+import { cn } from "@/lib/utils"
 import { useHydrated } from "@/lib/utils/client"
 import { useNow } from "@/lib/utils/time"
 import {
@@ -54,21 +60,33 @@ const STATUS_ICON: Record<TaskStatus, React.ReactNode> = {
   done: <CircleCheckIcon className="size-4 text-muted-foreground" />,
 }
 
-function matchesFilter(task: Task, filter: TaskFilter, now: number) {
-  if (filter === "all") {
-    return true
-  }
-  if (filter === "high") {
-    return task.priority === "high"
-  }
-  // Due filters are about work still to do.
-  if (task.status === "done") {
-    return false
-  }
-  const state = dueState(task, now)
-  return filter === "overdue"
-    ? state === "overdue"
-    : state === "today" || state === "soon"
+// A board-shaped placeholder shown until the stored tasks have hydrated, so
+// the layout does not jump when they arrive.
+function BoardSkeleton() {
+  return (
+    <div
+      className="flex flex-1 flex-col gap-4 px-4 py-4 sm:px-6"
+      aria-busy="true"
+    >
+      <div className="flex gap-2">
+        <Skeleton className="h-8 w-56" />
+        <Skeleton className="h-8 w-24" />
+        <Skeleton className="h-8 w-24" />
+      </div>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        {[0, 1, 2].map((column) => (
+          <div
+            key={column}
+            className="flex flex-col gap-2 rounded-xl border p-3"
+          >
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 /**
@@ -87,8 +105,7 @@ export function TasksView({
   const hydrated = useHydrated()
   const now = useNow()
 
-  const [query, setQuery] = React.useState("")
-  const [filter, setFilter] = React.useState<TaskFilter>("all")
+  const [filters, setFilters] = React.useState<TaskFilterState>(EMPTY_FILTER)
   const [dialog, setDialog] = React.useState<TaskDialogState | null>(null)
 
   // Open the dialog once per request, including one made while already here.
@@ -98,14 +115,14 @@ export function TasksView({
     setDialog({ mode: "create" })
   }
 
-  const needle = query.trim().toLowerCase()
-  const filtering = needle !== "" || filter !== "all"
+  const needle = filters.query.trim().toLowerCase()
+  const filtering = isFilterActive(filters)
 
   const board = React.useMemo<TaskBoard>(() => {
     const visible = tasks.filter(
       (task) =>
         (!needle || task.title.toLowerCase().includes(needle)) &&
-        matchesFilter(task, filter, now)
+        taskMatchesFilter(task, filters, now)
     )
     return Object.fromEntries(
       TASK_STATUSES.map(({ id }) => [
@@ -113,7 +130,17 @@ export function TasksView({
         visible.filter((task) => task.status === id),
       ])
     )
-  }, [tasks, needle, filter, now])
+  }, [tasks, needle, filters, now])
+
+  // The Status facet chooses which columns show; none selected shows all.
+  const visibleStatuses = React.useMemo(
+    () =>
+      TASK_STATUSES.filter(
+        ({ id }) =>
+          filters.statuses.length === 0 || filters.statuses.includes(id)
+      ),
+    [filters.statuses]
+  )
 
   const pagesById = React.useMemo(
     () => new Map(pages.map((page) => [page.id, page])),
@@ -147,7 +174,9 @@ export function TasksView({
         </Button>
       </header>
 
-      {hydrated && tasks.length === 0 ? (
+      {!hydrated ? (
+        <BoardSkeleton />
+      ) : tasks.length === 0 ? (
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
@@ -167,12 +196,7 @@ export function TasksView({
         </Empty>
       ) : (
         <div className="flex flex-1 flex-col gap-4 px-4 py-4 sm:px-6">
-          <TaskFilters
-            query={query}
-            onQueryChange={setQuery}
-            filter={filter}
-            onFilterChange={setFilter}
-          />
+          <TaskFilters filter={filters} onChange={setFilters} />
 
           {filtering && shownCount === 0 ? (
             <p className="text-sm text-muted-foreground" role="status">
@@ -187,8 +211,18 @@ export function TasksView({
           >
             {/* Columns stretch to one height, so a short column is still a
                 full-height drop target. */}
-            <KanbanBoard className="grid grid-cols-1 content-start gap-3 md:auto-rows-[minmax(18rem,auto)] md:grid-cols-3">
-              {TASK_STATUSES.map(({ id: status, label }) => {
+            <KanbanBoard
+              className={cn(
+                "grid grid-cols-1 content-start gap-3 md:auto-rows-[minmax(18rem,auto)]",
+                // Columns follow how many statuses the Status facet shows.
+                visibleStatuses.length === 1
+                  ? "md:grid-cols-1"
+                  : visibleStatuses.length === 2
+                    ? "md:grid-cols-2"
+                    : "md:grid-cols-3"
+              )}
+            >
+              {visibleStatuses.map(({ id: status, label }) => {
                 const column = board[status] ?? []
                 return (
                   <KanbanColumn key={status} value={status}>

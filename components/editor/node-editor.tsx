@@ -8,6 +8,7 @@ import {
 import * as React from "react"
 import { toast } from "sonner"
 
+import { SourceEditor } from "@/components/editor/source-editor"
 import { imageSource, saveImage } from "@/lib/pages/store"
 
 // Pasted and dropped images become files in the project's assets folder and
@@ -31,11 +32,8 @@ function Surface() {
   // handles sit). Pulling each out by its padding lines the text up with the
   // page title.
   if (mode === "source") {
-    return (
-      <div className="-mx-5">
-        <MdxEditor.Source />
-      </div>
-    )
+    // Node's own VS Code-style source surface, bound to the editor state.
+    return <SourceEditor />
   }
   return (
     <div className="-mx-6">

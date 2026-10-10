@@ -4,6 +4,7 @@ import * as React from "react"
 
 import { useWorkspaceUI } from "@/components/app-shell/workspace-ui"
 import { ActivityTracker } from "@/components/home/activity-tracker"
+import { HomeBanner } from "@/components/home/home-banner"
 import { HtbLogo } from "@/components/home/htb-logo"
 import { HtbTracker } from "@/components/home/htb-tracker"
 import { SkillAssessment } from "@/components/home/skill-assessment"
@@ -102,6 +103,8 @@ export function HomeView() {
         editorWidth === "full" ? "max-w-none lg:px-16" : "max-w-2xl"
       )}
     >
+      <HomeBanner />
+
       <header className="flex flex-col gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">

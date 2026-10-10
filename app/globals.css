@@ -175,53 +175,53 @@
 
 /* Syntax colours for the repository code viewer. They reuse the editor's
    highlight tokens, so code looks the same in a document and in a file. */
-:is(.repo-code, .tool-code) .hljs-comment,
-:is(.repo-code, .tool-code) .hljs-quote {
+:is(.repo-code, .tool-code, .mdx-source) .hljs-comment,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-quote {
     color: var(--fde-hl-comment);
 }
 
-:is(.repo-code, .tool-code) .hljs-keyword,
-:is(.repo-code, .tool-code) .hljs-selector-tag,
-:is(.repo-code, .tool-code) .hljs-literal,
-:is(.repo-code, .tool-code) .hljs-built_in {
+:is(.repo-code, .tool-code, .mdx-source) .hljs-keyword,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-selector-tag,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-literal,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-built_in {
     color: var(--fde-hl-keyword);
 }
 
-:is(.repo-code, .tool-code) .hljs-string,
-:is(.repo-code, .tool-code) .hljs-regexp,
-:is(.repo-code, .tool-code) .hljs-addition {
+:is(.repo-code, .tool-code, .mdx-source) .hljs-string,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-regexp,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-addition {
     color: var(--fde-hl-string);
 }
 
-:is(.repo-code, .tool-code) .hljs-number,
-:is(.repo-code, .tool-code) .hljs-symbol,
-:is(.repo-code, .tool-code) .hljs-bullet {
+:is(.repo-code, .tool-code, .mdx-source) .hljs-number,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-symbol,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-bullet {
     color: var(--fde-hl-number);
 }
 
-:is(.repo-code, .tool-code) .hljs-title,
-:is(.repo-code, .tool-code) .hljs-section,
-:is(.repo-code, .tool-code) .hljs-function {
+:is(.repo-code, .tool-code, .mdx-source) .hljs-title,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-section,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-function {
     color: var(--fde-hl-title);
 }
 
-:is(.repo-code, .tool-code) .hljs-type,
-:is(.repo-code, .tool-code) .hljs-class {
+:is(.repo-code, .tool-code, .mdx-source) .hljs-type,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-class {
     color: var(--fde-hl-type);
 }
 
-:is(.repo-code, .tool-code) .hljs-attr,
-:is(.repo-code, .tool-code) .hljs-attribute,
-:is(.repo-code, .tool-code) .hljs-variable,
-:is(.repo-code, .tool-code) .hljs-template-variable,
-:is(.repo-code, .tool-code) .hljs-meta {
+:is(.repo-code, .tool-code, .mdx-source) .hljs-attr,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-attribute,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-variable,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-template-variable,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-meta {
     color: var(--fde-hl-attr);
 }
 
-:is(.repo-code, .tool-code) .hljs-tag,
-:is(.repo-code, .tool-code) .hljs-name,
-:is(.repo-code, .tool-code) .hljs-selector-id,
-:is(.repo-code, .tool-code) .hljs-selector-class {
+:is(.repo-code, .tool-code, .mdx-source) .hljs-tag,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-name,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-selector-id,
+:is(.repo-code, .tool-code, .mdx-source) .hljs-selector-class {
     color: var(--fde-hl-tag);
 }
 
