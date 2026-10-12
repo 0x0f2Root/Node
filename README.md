@@ -3,7 +3,6 @@
 </p>
 
 <p align="center">
-  <h1 align="center">Node</h1>
   <p align="center">Node, a Next.js Markdown editor,
 focused for Pentesting. To build technical notes</p>
   <p align="center">
