@@ -9,7 +9,7 @@ focused for Pentesting. To build technical notes</p>
     <img src="https://img.shields.io/badge/build-passing-brightgreen" alt="Build Status">
     <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
-    <img src="https://img.shields.io/github/stars/YOUR_USERNAME/Node?style=social" alt="GitHub Stars">
+    <img src="https://img.shields.io/github/stars/0x0f2Root/Node?style=social" alt="GitHub Stars">
   </p>
 </p>
 
