@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { toast } from "sonner"
 
 import { Badge } from "@/components/reui/badge"
 import {
@@ -10,13 +9,13 @@ import {
   FramePanel,
   FrameTitle,
 } from "@/components/reui/frame"
-import { Button } from "@/components/ui/button"
+import { ToolCodeBlock } from "@/components/tools/code-block"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import type { FieldState } from "@/lib/tools/reverse-shell/filters"
 import type { ReverseShellConfig } from "@/lib/tools/reverse-shell/types"
 import { cn } from "@/lib/utils"
-import { CopyIcon, RadioTowerIcon, ZapIcon } from "lucide-react"
+import { RadioTowerIcon, ZapIcon } from "lucide-react"
 
 function Field({
   id,
@@ -54,11 +53,30 @@ function Field({
   )
 }
 
+/** Commands to start a listener on the attacking host, for the current port. */
+function listenerCommands(host: string, port: string) {
+  return [
+    { label: "Netcat", command: `nc -lvnp ${port}` },
+    { label: "Netcat + rlwrap", command: `rlwrap nc -lvnp ${port}` },
+    {
+      label: "Socat (PTY)",
+      command: `socat file:\`tty\`,raw,echo=0 tcp-listen:${port}`,
+    },
+    { label: "pwncat", command: `pwncat-cs -lp ${port}` },
+    {
+      label: "Metasploit",
+      wide: true,
+      command: `msfconsole -q -x "use multi/handler; set payload generic/shell_reverse_tcp; set LHOST ${host}; set LPORT ${port}; run"`,
+    },
+  ]
+}
+
 /**
  * The listener configuration: LHOST and LPORT. Editing either updates the
  * `config` immediately — there is no submit — so every shell on the page
  * regenerates live. Invalid values still flow through (the user may be
- * mid-typing) but surface an inline error.
+ * mid-typing) but surface an inline error. The listener commands below
+ * regenerate with the port the same way.
  */
 export function ReverseShellConfigPanel({
   config,
@@ -71,16 +89,9 @@ export function ReverseShellConfigPanel({
   hostState: FieldState
   portState: FieldState
 }) {
-  const listener = `${config.host.trim() || "LHOST"}:${
-    config.port.trim() || "LPORT"
-  }`
-
-  function copyListener() {
-    navigator.clipboard
-      .writeText(listener)
-      .then(() => toast.success("Listener copied"))
-      .catch(() => toast.error("Could not copy the listener"))
-  }
+  const port = config.port.trim() || "PORT"
+  const host = config.host.trim() || "LHOST"
+  const listeners = listenerCommands(host, port)
 
   return (
     <Frame spacing="sm">
@@ -144,27 +155,25 @@ export function ReverseShellConfigPanel({
             className="font-mono"
           />
         </Field>
+      </FramePanel>
 
-        <div className="flex flex-col gap-1.5 sm:w-56">
-          <span className="text-xs tracking-wide text-muted-foreground">
-            Listener
+      <FramePanel className="flex flex-col gap-2.5">
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="font-mono text-xs tracking-wide">Listener</span>
+          <span className="text-xs text-muted-foreground">
+            Run one on your host (LHOST) before triggering a shell
           </span>
-          <div className="flex items-center gap-1 rounded-lg border bg-muted/40 py-1 pr-1 pl-2.5">
-            <code className="min-w-0 flex-1 truncate font-mono text-[0.8125rem]">
-              {listener}
-            </code>
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              aria-label="Copy listener address"
-              onClick={copyListener}
-            >
-              <CopyIcon />
-            </Button>
-          </div>
-          <p className="min-h-4 text-xs text-muted-foreground">
-            Convenience only — no listener is started.
-          </p>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {listeners.map((listener) => (
+            <ToolCodeBlock
+              key={listener.label}
+              code={listener.command}
+              language="bash"
+              label={listener.label}
+              className={cn(listener.wide && "sm:col-span-2")}
+            />
+          ))}
         </div>
       </FramePanel>
     </Frame>

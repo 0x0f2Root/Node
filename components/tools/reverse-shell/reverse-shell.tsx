@@ -3,7 +3,6 @@
 import * as React from "react"
 import { toast } from "sonner"
 
-import { Badge } from "@/components/reui/badge"
 import { ReverseShellCard } from "@/components/tools/reverse-shell/reverse-shell-card"
 import { ReverseShellConfigPanel } from "@/components/tools/reverse-shell/reverse-shell-config"
 import { Button } from "@/components/ui/button"
@@ -71,19 +70,9 @@ export function ReverseShell() {
       )}
     >
       <header className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Reverse Shell Generator
-          </h1>
-          <Badge
-            variant="outline"
-            size="sm"
-            className="font-mono tracking-wider text-muted-foreground uppercase"
-          >
-            <TerminalIcon aria-hidden="true" />
-            Generator only
-          </Badge>
-        </div>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Reverse Shell Generator
+        </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
           Generate common reverse shell payloads for authorized security
           testing, CTFs, labs, and technical environments. Commands are text
