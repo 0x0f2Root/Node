@@ -1,10 +1,18 @@
-# Node Markdown Editor
-
 <p align="center">
   <img src="./public/banner.png" alt="Node Markdown Editor" width="1200" />
 </p>
 
-Node is a Markdown-first workspace for writing and organizing notes, with a task board, calendar, search, and small developer tools.
+<p align="center">
+  <h1 align="center">Node</h1>
+  <p align="center">Node, a Next.js Markdown editor,
+focused for Pentesting. To build technical notes</p>
+  <p align="center">
+    <img src="https://img.shields.io/badge/build-passing-brightgreen" alt="Build Status">
+    <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
+    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
+    <img src="https://img.shields.io/github/stars/YOUR_USERNAME/Node?style=social" alt="GitHub Stars">
+  </p>
+</p>
 
 <p align="center">
   <img src="./public/Node.png" alt="Node Markdown Editor preview" width="1200" />
